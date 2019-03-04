@@ -1,0 +1,45 @@
+
+version: '3'
+services:
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    hostname: 'gitlab'
+    ports:
+      - '80:80'
+    expose:
+      - '80'
+    volumes:
+      - ./volume/gitlab/etc:/etc/gitlab
+      - ./volume/gitlab/log:/var/log/gitlab
+      - ./volume/gitlab/data:/var/opt/gitlab
+
+  jupyter:
+    build:
+      context: ./dockerfiles/jupyter
+      dockerfile: Dockerfile
+    ports:
+      - '8888:8888'
+    environment:
+      - JUPYTER_ENABLE_LAB=true
+    command: start-notebook.sh --NotebookApp.token=''
+    volumes:
+      - ./work:/home/jovyan/work
+      - ./volume/mlflow:/opt/mlflow
+
+  runner:
+    image: gitlab/gitlab-runner:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./volume/gitlab-runner/config:/etc/gitlab-runner
+
+  mlflow:
+    build:
+      context: ./dockerfiles/mlflow
+      dockerfile: Dockerfile
+    command: mlflow server --file-store /opt/mlflow --host 0.0.0.0
+    ports:
+      - '5000:5000'
+    expose:
+      - '3000'
+    volumes:
+      - ./volume/mlflow/:/opt/mlflow

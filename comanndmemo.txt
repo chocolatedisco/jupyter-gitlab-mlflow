@@ -1,0 +1,5 @@
+mlflow pyfunc serve -p 1234 --model-path /opt/mlflow/1/b92d90968476408cb063e4143502664d/artifacts/ml_models -h 0.0.0.0
+curl -X POST -H "Content-Type:application/json" --data '[[3, 1, -0.554313, 1, 0, -0.502445, 2]]' http://mlflow:1234/invocations
+
+
+[3, 1, -0.554313, 1, 0, -0.502445, 2]
